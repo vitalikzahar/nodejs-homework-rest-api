@@ -7,8 +7,8 @@ const Joi = require("joi");
 
 const addSchema = Joi.object({
   name: Joi.string().required(),
-  email: Joi.string.email().require(),
-  phone: Joi.string().phoneNumber().require(),
+  email: Joi.string().email().required(),
+  phone: Joi.number().required(),
 });
 
 router.get("/", async (req, res, next) => {
