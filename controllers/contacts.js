@@ -1,84 +1,92 @@
 const Contact = require("../models/contact");
 
-async function getContacts(req, res, next) {
+async function listContacts(req, res, next) {
   try {
     const contacts = await Contact.find().exec();
-    // res.send(contacts);
-    console.log(contacts);
     res.status(200).json(contacts);
   } catch (error) {
     next(error);
   }
 }
-async function getContact(req, res, next) {
-  const { id } = req.params;
+async function getContactById(req, res, next) {
+  const { contactId } = req.params;
 
   try {
-    const contact = await Contact.findById(id).exec();
+    const contact = await Contact.findById(contactId).exec();
 
     if (contact === null) {
-      return res.status(404).send("Book not found:(");
+      res.status(404).json({ message: "Not found" });
     }
 
-    res.send(contact);
+    res.status(200).json(contact);
   } catch (err) {
     next(err);
   }
 }
 
-// async function createBook(req, res, next) {
-//   const book = {
-//     title: req.body.title,
-//     author: req.body.author,
-//     genre: req.body.genre,
-//     year: req.body.year,
-//   };
+async function addContact(req, res, next) {
+  const contact = {
+    name: req.body.name,
+    email: req.body.email,
+    phone: req.body.phone,
+    favorite: req.body.favorite,
+  };
 
-//   try {
-//     const result = await Book.create(book);
+  try {
+    const result = await Contact.create(contact);
 
-//     res.status(201).send(result);
-//   } catch (err) {
-//     next(err);
-//   }
-// }
+    res.status(201).json(result);
+  } catch (err) {
+    next(err);
+  }
+}
 
-// async function updateBook(req, res, next) {
-//   const { id } = req.params;
+async function updateStatusContact(req, res, next) {
+  const { contactId } = req.params;
 
-//   const book = {
-//     title: req.body.title,
-//     author: req.body.author,
-//     genre: req.body.genre,
-//     year: req.body.year,
-//   };
+  const contact = {
+    name: req.body.name,
+    email: req.body.email,
+    phone: req.body.phone,
+    favorite: req.body.favorite,
+  };
+  console.log(req.body);
+  if (!Object.keys(req.body).length) {
+    return res.status(404).json({ message: "missing field favorite" });
+  }
+  try {
+    const result = await Contact.findByIdAndUpdate(contactId, contact, {
+      new: true,
+    });
 
-//   try {
-//     const result = await Book.findByIdAndUpdate(id, book, { new: true });
+    if (result === null) {
+      return res.status(404).json({ message: " Not found " });
+    }
 
-//     if (result === null) {
-//       return res.status(404).send("Book not found");
-//     }
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+}
 
-//     res.send(result);
-//   } catch (err) {
-//     next(err);
-//   }
-// }
+async function removeContact(req, res, next) {
+  const { contactId } = req.params;
 
-// async function deleteBook(req, res, next) {
-//   const { id } = req.params;
+  try {
+    const result = await Contact.findByIdAndDelete(contactId);
 
-//   try {
-//     const result = await Book.findByIdAndDelete(id);
-
-//     if (result === null) {
-//       return res.status(404).send("Book not found");
-//     }
-
-//     res.send({ id });
-//   } catch (err) {
-//     next(err);
-//   }
-// }
-module.exports = { getContacts, getContact };
+    if (!result) {
+      res.status(404).json({ message: "Not found" });
+    }
+    res.status(200).json({ message: "contact deleted" });
+  } catch (err) {
+    next(err);
+  }
+}
+module.exports = {
+  listContacts,
+  getContactById,
+  addContact,
+  updateStatusContact,
+  removeContact,
+};
