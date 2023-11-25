@@ -2,7 +2,7 @@ const Contact = require("../models/contact");
 
 async function listContacts(req, res, next) {
   try {
-    const contacts = await Contact.find().exec();
+    const contacts = await Contact.find({ owner: req.user.id }).exec();
     res.status(200).json(contacts);
   } catch (error) {
     next(error);
@@ -17,7 +17,9 @@ async function getContactById(req, res, next) {
     if (contact === null) {
       res.status(404).json({ message: "Not found" });
     }
-
+    if (contact.owner.toString() !== req.user.id) {
+      return res.status(404).json({ message: "Not found" });
+    }
     res.status(200).json(contact);
   } catch (err) {
     next(err);
@@ -30,8 +32,9 @@ async function addContact(req, res, next) {
     email: req.body.email,
     phone: req.body.phone,
     favorite: req.body.favorite,
+    owner: req.user.id,
   };
-
+  console.log(req.user);
   try {
     const result = await Contact.create(contact);
 
@@ -50,7 +53,7 @@ async function updateStatusContact(req, res, next) {
     phone: req.body.phone,
     favorite: req.body.favorite,
   };
-  console.log(req.body);
+
   if (!Object.keys(req.body).length) {
     return res.status(404).json({ message: "missing field favorite" });
   }
@@ -62,7 +65,9 @@ async function updateStatusContact(req, res, next) {
     if (result === null) {
       return res.status(404).json({ message: " Not found " });
     }
-
+    if (contact.owner.toString() !== req.user.id) {
+      return res.status(404).json({ message: "Not found" });
+    }
     res.status(200).json(result);
   } catch (err) {
     next(err);
@@ -77,6 +82,9 @@ async function removeContact(req, res, next) {
 
     if (!result) {
       res.status(404).json({ message: "Not found" });
+    }
+    if (result.owner.toString() !== req.user.id) {
+      return res.status(404).json({ message: "Not found" });
     }
     res.status(200).json({ message: "contact deleted" });
   } catch (err) {
