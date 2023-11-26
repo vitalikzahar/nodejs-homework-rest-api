@@ -72,7 +72,6 @@ async function current(req, res, next) {
   const authHeader = req.headers.authorization;
   const [bearer, token] = authHeader.split(" ", 2);
 
-  console.log({ bearer, token });
   try {
     const user = await User.findOne({ token }).exec();
 
