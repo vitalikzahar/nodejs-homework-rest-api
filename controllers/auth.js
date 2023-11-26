@@ -8,7 +8,7 @@ async function register(req, res, next) {
   try {
     const user = await User.findOne({ email }).exec();
 
-    if (user !== null) {
+    if (user) {
       return res.status(409).json({ message: "Email in use" });
     }
 
