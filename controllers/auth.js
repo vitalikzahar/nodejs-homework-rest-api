@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { User } = require("../models/user");
+const gravatar = require("gravatar");
 
 async function register(req, res, next) {
   const { password, email, subscription } = req.body;
@@ -13,8 +14,13 @@ async function register(req, res, next) {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-
-    await User.create({ email, subscription, password: passwordHash });
+    const avatarURL = gravatar.url(email);
+    await User.create({
+      email,
+      subscription,
+      password: passwordHash,
+      avatarURL,
+    });
 
     res.status(201).json({
       user: { email: email, subscription: subscription },
@@ -31,7 +37,6 @@ async function login(req, res, next) {
     const user = await User.findOne({ email }).exec();
 
     if (user === null) {
-      console.log(user);
       return res
         .status(401)
         .send({ message: "Email or password is incorrect" });
@@ -40,7 +45,6 @@ async function login(req, res, next) {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (isMatch === false) {
-      console.log("PASSWORD");
       return res.status(401).send({ message: "Email or password is wrong" });
     }
 

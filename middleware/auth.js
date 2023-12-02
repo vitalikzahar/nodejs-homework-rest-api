@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-const User = require("../models/user");
+const { User } = require("../models/user");
 
 function auth(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -26,6 +26,7 @@ function auth(req, res, next) {
       req.user = decode;
 
       const user = await User.findById(decode.id).exec();
+      console.log(decode.id);
 
       if (user === null) {
         return res.status(401).send({ message: "Not authorized" });

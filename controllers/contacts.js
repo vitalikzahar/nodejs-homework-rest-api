@@ -34,7 +34,6 @@ async function addContact(req, res, next) {
     favorite: req.body.favorite,
     owner: req.user.id,
   };
-  console.log(req.user);
   try {
     const result = await Contact.create(contact);
 

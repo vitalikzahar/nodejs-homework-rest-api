@@ -4,7 +4,9 @@ const { validateUser } = require("../../models/user");
 const validateMiddleWare = require("../../middleware/validateMiddleware");
 
 const AuthController = require("../../controllers/auth");
+const UserController = require("../../controllers/user");
 const auth = require("../../middleware/auth");
+const upload = require("../../middleware/upload");
 
 const router = express.Router();
 const jsonParser = express.json();
@@ -23,4 +25,10 @@ router.post(
 );
 router.get("/logout", auth, AuthController.logout);
 router.get("/current", AuthController.current);
+router.patch(
+  "/avatars",
+  auth,
+  upload.single("avatars"),
+  UserController.uploadAvatar
+);
 module.exports = router;
