@@ -11,7 +11,7 @@ function auth(req, res, next) {
 
   const [bearer, token] = authHeader.split(" ", 2);
 
-  console.log({ bearer, token });
+
 
   if (bearer !== "Bearer") {
     return res.status(401).send({ message: "Invalid token" });
@@ -26,7 +26,7 @@ function auth(req, res, next) {
       req.user = decode;
 
       const user = await User.findById(decode.id).exec();
-      console.log(decode.id);
+    
 
       if (user === null) {
         return res.status(401).send({ message: "Not authorized" });
@@ -34,6 +34,11 @@ function auth(req, res, next) {
 
       if (user.token !== token) {
         return res.status(401).send({ message: "Invalid token" });
+      }
+      if (user.verify !== true) {
+        return res
+          .status(401)
+          .send({ message: "Your account is not verified" });
       }
 
       req.user = { id: user._id, email: user.email };

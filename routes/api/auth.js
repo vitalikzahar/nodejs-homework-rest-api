@@ -31,4 +31,10 @@ router.patch(
   upload.single("avatars"),
   UserController.uploadAvatar
 );
+router.get("/verify/:verificationToken", AuthController.verify);
+router.post(
+  "/verify",
+  [validateMiddleWare(validateUser)],
+  AuthController.verifyRepeat
+);
 module.exports = router;
